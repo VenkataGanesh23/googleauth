@@ -17,10 +17,9 @@ export default function Login() {
   const handleLogout = () => {
     fetch('http://localhost:5173/', {
       method: 'GET',
-      credentials: 'include' // Include credentials for cross-origin requests if needed
+      credentials: 'include' 
     })
     .then(response => {
-      // Handle successful logout and redirect to login page
       window.location.href = '/'; 
     })
     .catch(error => {
@@ -55,7 +54,7 @@ export default function Login() {
     .then(response => {
       console.log('Sent Email:', response.data);
       setSnackbarMessage('Email sent successfully.');
-      setSentEmails(prev => [response.data, ...prev]); // Add the new email to the list
+      setSentEmails(prev => [response.data, ...prev]); 
     })
     .catch(error => {
       setSnackbarMessage('Failed to send email.');
@@ -100,15 +99,6 @@ export default function Login() {
             <Button startIcon={<InboxIcon style={{ width: '20px', height: '20px' }} />} fullWidth>
               Inbox
             </Button>
-            {/* <Button startIcon={<SendIcon style={{ width: '20px', height: '20px' }} />} fullWidth>
-              Sent
-            </Button>
-            <Button startIcon={<DeleteIcon style={{ width: '20px', height: '20px' }} />} fullWidth>
-              Trash
-            </Button>
-            <Button startIcon={<ArchiveIcon style={{ width: '20px', height: '20px' }} />} fullWidth>
-              Archived
-            </Button> */}
           </nav>
         </div>
         <div style={{ backgroundColor: '#f3f4f6', borderRadius: '8px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
