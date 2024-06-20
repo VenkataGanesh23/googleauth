@@ -2,6 +2,7 @@ import './App.css'
 import Index from './components/Index'
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from './components/Login';
+import Template from './components/Template';
 
 function App() {
   return (

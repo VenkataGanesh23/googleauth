@@ -74,6 +74,10 @@ export default function Login() {
     setOpenSnackbar(false);
   };
 
+  const handeltemplate=()=>{
+    navigate('/template')
+  }
+
   console.log(sentEmails, )
 
   return (
@@ -98,6 +102,9 @@ export default function Login() {
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <Button startIcon={<InboxIcon style={{ width: '20px', height: '20px' }} />} fullWidth>
               Inbox
+            </Button>
+            <Button onClick={handeltemplate} startIcon={<InboxIcon style={{ width: '20px', height: '20px' }} />} fullWidth>
+              Template
             </Button>
           </nav>
         </div>
