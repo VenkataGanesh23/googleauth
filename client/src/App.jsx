@@ -9,9 +9,7 @@ function App() {
     <BrowserRouter>
     <Routes>
       <Route path='/' element={<Index/>}/>
-      {/* <Route element={<Protected />}> */}
       <Route path='/login' element={<Login/>}/>
-      {/* </Route> */}
     </Routes>
     </BrowserRouter>
     </>

@@ -95,46 +95,123 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const POSTMARK_API_KEY = 'bab3d317-de4c-4ec7-a794-f77717ece3c6';
 const POSTMARK_API_URL = 'https://api.postmarkapp.com';
 
-// Endpoint to fetch communication details
 app.get('/communication-details', async (req, res) => {
   try {
-    // Example: Fetching sent emails using Postmark API
-    const response = await axios.get(`${POSTMARK_API_URL}/messages/outbound`, {
-      params: {
-        count: 10 , // Adjust count as per your requirement
-        offset:0
-      },
-      headers: {
-        'X-Postmark-Server-Token': POSTMARK_API_KEY
+    // Parameters for listing recent outbound messages
+    const listUrl = `${POSTMARK_API_URL}/messages/outbound`;
+    const params = {
+      count: 10,  // Number of messages to retrieve
+      offset: 0,  // Offset for pagination (if needed)
+    };
+
+    const headers = {
+      'Accept': 'application/json',
+      'X-Postmark-Server-Token': POSTMARK_API_KEY,
+    };
+
+    // Fetch list of recent outbound messages
+    const response = await axios.get(listUrl, { params, headers });
+
+    if (response.status === 200) {
+      // Ensure response.data is defined and is an array
+      try {
+        if (Array.isArray(response.data)) {
+          // response.data is already an array of objects
+          const messageIds = response.data.map(message => message.MessageID);
+          
+          // Further processing with messageIds
+          const emailsDetailsPromises = messageIds.map(async messageId => {
+            if (!messageId) {
+              throw new Error('Invalid messageId encountered');
+            }
+            const detailsUrl = `${POSTMARK_API_URL}/messages/outbound/${messageId}/details`;
+            const detailsResponse = await axios.get(detailsUrl, { headers });
+            
+            return detailsResponse.data;
+          });
+          
+      
+          // Resolve all promises to get email details
+          const emailsDetails = await Promise.all(emailsDetailsPromises);
+          
+          // Respond with the details
+          res.status(200).json(emailsDetails);
+        } else {
+          // Convert response.data to an array of objects
+          const messagesArray = Object.keys(response.data).map(key => ({ [key]: response.data[key] }));
+
+          console.log(response.data, 'response data')
+          console.log(messagesArray, 'messagesArray')
+          
+          // Extract messageIds from the converted array of objects
+          const messageIds = messagesArray[1].Messages.map(message => message.MessageID).filter(String);
+
+
+          console.log(messageIds, 'messageIds')
+          
+          const validMessageIds = messageIds.filter(messageId => !!messageId);
+  
+  if (validMessageIds.length === 0) {
+    throw new Error('No valid messageIds found');
+  }
+          
+          // Proceed with further processing similar to the above
+          const emailsDetailsPromises = validMessageIds.map(async messageId => {
+            if (!messageId) {
+              throw new Error('Invalid messageId encountered');
+            }
+            const detailsUrl = `${POSTMARK_API_URL}/messages/outbound/${messageId}/details`;
+            const detailsResponse = await axios.get(detailsUrl, { headers });
+            
+            return detailsResponse.data;
+          });
+          
+      
+          // Resolve all promises to get email details
+          const emailsDetails = await Promise.all(emailsDetailsPromises);
+          
+          // Respond with the details
+          res.status(200).json(emailsDetails);
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Server error');
       }
-    });
-
-    // Example: You can also fetch inbound messages or handle pagination if needed
-    const communicationHistory = response.data;
-
-    res.json(communicationHistory);
+      
+    } else {
+      console.error('Error fetching outbound messages:', response.status, response.statusText);
+      res.status(response.status).send('Error fetching outbound messages');
+    }
   } catch (error) {
-    console.error('Error fetching communication details:', error);
-    res.status(500).json({ error: 'Failed to fetch communication details' });
+    console.error('Error:', error);
+    res.status(500).send('Server error');
   }
 });
 
 // Endpoint to send an email
 app.post('/send-email', async (req, res) => {
   try {
-    // const { to, subject, textBody, htmlBody } = req.body;
-
+    const { to, subject,body } = req.body;
+    console.log(to,subject,body)
     // Example: Sending email using Postmark API
     const response = await axios.post(`${POSTMARK_API_URL}/email`, {
+      // From: '197y1a05h6@mlritm.ac.in',
+      // To: to,
+      // Subject: subject,
+      // Body:body,
+      // TextBody: "hello",
+      // HtmlBody: htmlBody
+
       From: '197y1a05h6@mlritm.ac.in',
-      To: '197y1a05h6@mlritm.ac.in',
-      Subject: 'hi',
-      TextBody: 'heelo',
-      HtmlBody: 'htmlBody'
+  To: '197y1a05h6@mlritm.ac.in',
+  Subject: 'Test Email Subject',
+  TextBody: 'This is the text body of the email.', 
     }, {
       headers: {
         'X-Postmark-Server-Token': POSTMARK_API_KEY,
-        'Content-Type': 'application/json'
+        'Accept': 'application/json',
+    'Content-Type': 'application/json',
       }
     });
 
